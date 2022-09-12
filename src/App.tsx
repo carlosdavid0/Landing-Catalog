@@ -162,7 +162,7 @@ function App() {
   }
 
   return (
-    <div onKeyDown={onkeonkeydown}>
+    <div onKeyDown={onkeonkeydown} className="min-h-screen max-h-full">
       {loading ? (
         <div className="h-screen bg-gray-100 dark:bg-slate-700">
           <div className="">
@@ -377,7 +377,7 @@ function App() {
               </Modal>
             ) : null}
 
-            <div className="sticky top-0 z-50">
+<div className="sticky top-0 z-50">
               <Navbar fluid={true} rounded={true}>
                 <Navbar.Brand href="/">
                   <span className="self-center whitespace-nowrap text-xl font-semibold dark:text-white">
