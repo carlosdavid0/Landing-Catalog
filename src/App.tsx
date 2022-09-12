@@ -37,7 +37,7 @@ function App() {
     setCount(count);
     setLoading(true);
     axios
-      .get("http://192.168.1.105:6060/produtos")
+      .get("http://localhost:6060/produtos")
       .then((response) => {
         setProdutos(response.data);
         setLoading(false);
@@ -51,10 +51,6 @@ function App() {
 
   function handleCard() {
     const card = JSON.parse(localStorage.getItem("produtos") || "[]");
-
-    // total value from array
-
-    //get total value from array
 
     setTotalCard(0);
     card.map((item: any) => {
@@ -172,7 +168,7 @@ function App() {
           <div className="">
             <div className="sticky top-0">
               <Navbar fluid={true} rounded={true}>
-                <Navbar.Brand href="https://flowbite.com/">
+                <Navbar.Brand href="">
                   <span className="self-center whitespace-nowrap text-xl font-semibold dark:text-white">
                     Comercial Angelim
                   </span>
@@ -231,42 +227,64 @@ function App() {
         >
           <div className="h-full ">
             {modalCard && card ? (
-              <Modal show={modalCard} onClose={onCloseCard} position='top-center'>
+              <Modal
+                show={modalCard}
+                onClose={onCloseCard}
+                position="top-center"
+              >
                 <Modal.Header>Carrinho de compras</Modal.Header>
                 <Modal.Body>
                   <div className=" flex flex-col gap-3 ">
-                    {card?.map((item, index: number) => (
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                          <div className="">
-                            <p className="text-xs text-gray-400">{index + 1}</p>
+                    {card.length >= 1 ? (
+                      card?.map((item, index: number) => (
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-4">
+                            <div className="">
+                              <p className="text-xs text-gray-400">
+                                {index + 1}
+                              </p>
+                            </div>
+                            <div className="dark:text-white text-xl">
+                              <p>
+                                {item.descricao[0] +
+                                  item.descricao.toLowerCase().substring(1)}
+                              </p>
+                              <p className="text-sm text-gray-400">
+                                <span className="text-xs text-gray-400 ">
+                                  {`${item?.preco?.toLocaleString("pt-br", {
+                                    style: "currency",
+                                    currency: "BRL",
+                                  })} x ${item?.qtd} = ${(
+                                    item.preco * item.qtd
+                                  ).toLocaleString("pt-br", {
+                                    style: "currency",
+                                    currency: "BRL",
+                                  })}`}
+                                </span>
+                              </p>
+                            </div>
                           </div>
-                          <div className="dark:text-white text-xl">
-                            <p>
-                              {item.descricao[0] +
-                                item.descricao.toLowerCase().substring(1)}
-                            </p>
-                            <p className="text-sm text-gray-400">
-                              <span className="text-xs text-gray-400 ">
-                                {`${item?.preco?.toLocaleString("pt-br", {
-                                  style: "currency",
-                                  currency: "BRL",
-                                })} x ${item?.qtd} = ${(
-                                  item.preco * item.qtd
-                                ).toLocaleString("pt-br", {
-                                  style: "currency",
-                                  currency: "BRL",
-                                })}`}
-                              </span>
-                            </p>
+
+                          <div className="">
+                            <Button
+                              color={"failure"}
+                              onClick={() => removeFromCard(item.codigo)}
+                            >
+                              Remover
+                            </Button>
                           </div>
                         </div>
-
-                        <div className="">
-                          <Button color={"failure"} onClick={()=>removeFromCard(item.codigo)}>Remover</Button>
+                      ))
+                    ) : (
+                      <div className="flex flex-col dark:text-white items-center justify-center gap-2">
+                        <div className="flex items-center justify-center dark:text-gray-400 text-gray-600">
+                          <AiOutlineShoppingCart size={50} />
+                        </div>
+                        <div className="flex items-center justify-center">
+                          <p className="text-xl font-medium">Carrinho vazio</p>
                         </div>
                       </div>
-                    ))}
+                    )}
                   </div>
                 </Modal.Body>
                 <Modal.Footer>
@@ -280,14 +298,19 @@ function App() {
                         })}
                       </p>
                     </div>
-                    <Button color={"success"}>Finalizar</Button>
+                    <Button
+                      color={"success"}
+                      disabled={card.length === 0 ? true : false}
+                    >
+                      Finalizar
+                    </Button>
                   </div>
                 </Modal.Footer>
               </Modal>
             ) : null}
 
             {modal && produto ? (
-              <Modal show={modal} onClose={onClose} size="md">
+              <Modal show={modal} onClose={onClose} size="lg" position={'top-center'}>
                 <Modal.Header>
                   <p className="text-gray-600 dark:text-gray-300">
                     Adicionar Produto
@@ -324,7 +347,7 @@ function App() {
                     </div>
 
                     <div className="border-t-2 border-opacity-5 border-gray-50 mt-2">
-                    <p className="text-gray-400 text-sm mt-3"> Valor Total</p>
+                      <p className="text-gray-400 text-sm mt-3"> Valor Total</p>
                       <p className="text-2xl dark:text-gray-300">
                         {(produto.venda * qtdProdutos).toLocaleString("pt-BR", {
                           style: "currency",
@@ -354,9 +377,9 @@ function App() {
               </Modal>
             ) : null}
 
-            <div className="sticky top-0">
+            <div className="sticky top-0 z-50">
               <Navbar fluid={true} rounded={true}>
-                <Navbar.Brand href="https://flowbite.com/">
+                <Navbar.Brand href="/">
                   <span className="self-center whitespace-nowrap text-xl font-semibold dark:text-white">
                     Comercial Angelim
                   </span>
@@ -386,7 +409,7 @@ function App() {
               </Navbar>
             </div>
 
-            <div className=" grid py-2 bg-gray-100 dark:bg-slate-700 grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3 px-6 my-2">
+            <div className="relative py-2 px-6 my-2">
               <label
                 htmlFor="default-search"
                 className="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-gray-300"
@@ -402,9 +425,12 @@ function App() {
                   placeholder="Pesquise Produtos"
                 />
               </div>
+            </div>
+
+            <div className="relative grid py-2 bg-gray-100 dark:bg-slate-700 grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3 px-6 my-2">
               {produtoSearch
                 ? produtoSearch.map((produto) => (
-                    <div className="">
+                    <div className="" key={produto.codigo}>
                       <Card imgAlt={produto.nome.toLowerCase()}>
                         <p className=" dark:text-white text-lg text-slate-800 font-semibold">
                           {produto.nome[0].toUpperCase() +
@@ -441,7 +467,7 @@ function App() {
                     </div>
                   ))
                 : produtos?.map((produto) => (
-                    <div className="">
+                    <div className="" key={produto.codigo}>
                       <Card imgAlt={produto.nome.toLowerCase()}>
                         <p className=" dark:text-white text-lg text-slate-800 font-semibold">
                           {produto.nome[0].toUpperCase() +
