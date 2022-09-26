@@ -1,3 +1,24 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* change color of all scrollbars */
+
+::-webkit-scrollbar {
+  width: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: #575757;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #2e2e2e;
+}
+
+
+::-webkit-scrollbar-thumb:hover {
+  background: #212121;
+}
+
+

@@ -165,8 +165,8 @@ function App() {
     <div onKeyDown={onkeonkeydown} className="min-h-screen max-h-full">
       {loading ? (
         <div className="h-screen bg-gray-100 dark:bg-slate-700">
-          <div className="">
-            <div className="sticky top-0">
+          <div>
+            <div>
               <Navbar fluid={true} rounded={true}>
                 <Navbar.Brand href="">
                   <span className="self-center whitespace-nowrap text-xl font-semibold dark:text-white">
@@ -239,7 +239,7 @@ function App() {
                       card?.map((item, index: number) => (
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-4">
-                            <div className="">
+                            <div>
                               <p className="text-xs text-gray-400">
                                 {index + 1}
                               </p>
@@ -265,7 +265,7 @@ function App() {
                             </div>
                           </div>
 
-                          <div className="">
+                          <div>
                             <Button
                               color={"failure"}
                               onClick={() => removeFromCard(item.codigo)}
@@ -310,15 +310,20 @@ function App() {
             ) : null}
 
             {modal && produto ? (
-              <Modal show={modal} onClose={onClose} size="lg" position={'top-center'}>
+              <Modal
+                show={modal}
+                onClose={onClose}
+                size="lg"
+                position={"top-center"}
+              >
                 <Modal.Header>
                   <p className="text-gray-600 dark:text-gray-300">
                     Adicionar Produto
                   </p>
                 </Modal.Header>
                 <Modal.Body>
-                  <div className="">
-                    <div className="">
+                  <div>
+                    <div>
                       <p className="text-2xl dark:text-white text-slate-800 font-bold">
                         {produto.nome[0].toUpperCase() +
                           produto.nome.substring(1).toLowerCase()}
@@ -377,46 +382,49 @@ function App() {
               </Modal>
             ) : null}
 
-<div className="sticky top-0 z-50">
-              <Navbar fluid={true} rounded={true}>
-                <Navbar.Brand href="/">
-                  <span className="self-center whitespace-nowrap text-xl font-semibold dark:text-white">
-                    Comercial Angelim
-                  </span>
-                </Navbar.Brand>
-                <div className="flex md:order-2 gap-2 items-center">
-                  <label
-                    htmlFor="default-toggle"
-                    className="inline-flex relative items-center cursor-pointer"
-                  >
-                    <input
-                      onChange={(e) => {
-                        theme(e.target.checked);
-                      }}
-                      type="checkbox"
-                      checked={themes === "dark" ? true : false}
-                      value=""
-                      id="default-toggle"
-                      className="sr-only peer"
-                    />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
-                  </label>
+            <header className="fixed w-full top-0 z-10 ">
+              <div>
+                <Navbar fluid={true} rounded={true}>
+                  <Navbar.Brand href="/">
+                    <span className="self-center whitespace-nowrap text-xl font-semibold dark:text-white">
+                      Comercial Angelim
+                    </span>
+                  </Navbar.Brand>
+                  <div className="flex md:order-2 gap-2 items-center">
+                    <label
+                      htmlFor="default-toggle"
+                      className="inline-flex relative items-center cursor-pointer"
+                    >
+                      <input
+                        onChange={(e) => {
+                          theme(e.target.checked);
+                        }}
+                        type="checkbox"
+                        checked={themes === "dark" ? true : false}
+                        value=""
+                        id="default-toggle"
+                        className="sr-only peer"
+                      />
+                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                    </label>
 
-                  <Button label={count} onClick={handleCard}>
-                    <AiOutlineShoppingCart size={20} />
-                  </Button>
-                </div>
-              </Navbar>
-            </div>
+                    <Button label={count} onClick={handleCard}>
+                      <AiOutlineShoppingCart size={20} />
+                    </Button>
+                  </div>
+                </Navbar>
+              </div>
+            </header>
 
-            <div className="relative py-2 px-6 my-2">
-              <label
-                htmlFor="default-search"
-                className="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-gray-300"
-              >
-                Search
-              </label>
-              <div className="">
+            <div className="py-20 min-h-screen">
+              <div className="px-5">
+                <label
+                  htmlFor="default-search"
+                  className="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-gray-300"
+                >
+                  Search
+                </label>
+
                 <input
                   onChange={(e) => search(e.target.value)}
                   type="search"
@@ -425,84 +433,83 @@ function App() {
                   placeholder="Pesquise Produtos"
                 />
               </div>
-            </div>
+              <div className="relative grid py-2 bg-gray-100 dark:bg-slate-700 grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3 px-6 my-2">
+                {produtoSearch
+                  ? produtoSearch.map((produto) => (
+                      <div key={produto.codigo}>
+                        <Card imgAlt={produto.nome.toLowerCase()}>
+                          <p className=" dark:text-white text-lg text-slate-800 font-semibold">
+                            {produto.nome[0].toUpperCase() +
+                              produto.nome.substring(1).toLowerCase()}
+                          </p>
 
-            <div className="relative grid py-2 bg-gray-100 dark:bg-slate-700 grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3 px-6 my-2">
-              {produtoSearch
-                ? produtoSearch.map((produto) => (
-                    <div className="" key={produto.codigo}>
-                      <Card imgAlt={produto.nome.toLowerCase()}>
-                        <p className=" dark:text-white text-lg text-slate-800 font-semibold">
-                          {produto.nome[0].toUpperCase() +
-                            produto.nome.substring(1).toLowerCase()}
-                        </p>
-
-                        <div className="flex items-center justify-between gap-10">
-                          <span className="text-2xl max-w-xl font-bold text-gray-900 dark:text-gray-300">
-                            {produto.venda.toLocaleString("pt-BR", {
-                              style: "currency",
-                              currency: "BRL",
-                            })}
-                            <span className="text-sm m-2">
-                              {produto.embalagem[0] +
-                                produto.embalagem.substring(1).toLowerCase()}
+                          <div className="flex items-center justify-between gap-10">
+                            <span className="text-2xl max-w-xl font-bold text-gray-900 dark:text-gray-300">
+                              {produto.venda.toLocaleString("pt-BR", {
+                                style: "currency",
+                                currency: "BRL",
+                              })}
+                              <span className="text-sm m-2">
+                                {produto.embalagem[0] +
+                                  produto.embalagem.substring(1).toLowerCase()}
+                              </span>
                             </span>
-                          </span>
-                          {produto.estoque > 0 ? (
-                            <Button
-                              onClick={() => getProdutoToAdd(produto.codigo)}
-                            >
-                              Comprar
-                            </Button>
-                          ) : (
-                            <Button
-                              color={"failure"}
-                              onClick={() => getProdutoToAdd(produto.codigo)}
-                            >
-                              Comprar
-                            </Button>
-                          )}
-                        </div>
-                      </Card>
-                    </div>
-                  ))
-                : produtos?.map((produto) => (
-                    <div className="" key={produto.codigo}>
-                      <Card imgAlt={produto.nome.toLowerCase()}>
-                        <p className=" dark:text-white text-lg text-slate-800 font-semibold">
-                          {produto.nome[0].toUpperCase() +
-                            produto.nome.substring(1).toLowerCase()}
-                        </p>
+                            {produto.estoque > 0 ? (
+                              <Button
+                                onClick={() => getProdutoToAdd(produto.codigo)}
+                              >
+                                Comprar
+                              </Button>
+                            ) : (
+                              <Button
+                                color={"failure"}
+                                onClick={() => getProdutoToAdd(produto.codigo)}
+                              >
+                                Comprar
+                              </Button>
+                            )}
+                          </div>
+                        </Card>
+                      </div>
+                    ))
+                  : produtos?.map((produto) => (
+                      <div key={produto.codigo}>
+                        <Card imgAlt={produto.nome.toLowerCase()}>
+                          <p className=" dark:text-white text-lg text-slate-800 font-semibold">
+                            {produto.nome[0].toUpperCase() +
+                              produto.nome.substring(1).toLowerCase()}
+                          </p>
 
-                        <div className="flex items-center justify-between gap-10">
-                          <span className="text-2xl max-w-xl font-bold text-gray-900 dark:text-gray-300">
-                            {produto.venda.toLocaleString("pt-BR", {
-                              style: "currency",
-                              currency: "BRL",
-                            })}
-                            <span className="text-sm m-2">
-                              {produto.embalagem[0] +
-                                produto.embalagem.substring(1).toLowerCase()}
+                          <div className="flex items-center justify-between gap-10">
+                            <span className="text-2xl max-w-xl font-bold text-gray-900 dark:text-gray-300">
+                              {produto.venda.toLocaleString("pt-BR", {
+                                style: "currency",
+                                currency: "BRL",
+                              })}
+                              <span className="text-sm m-2">
+                                {produto.embalagem[0] +
+                                  produto.embalagem.substring(1).toLowerCase()}
+                              </span>
                             </span>
-                          </span>
-                          {produto.estoque > 0 ? (
-                            <Button
-                              onClick={() => getProdutoToAdd(produto.codigo)}
-                            >
-                              Comprar
-                            </Button>
-                          ) : (
-                            <Button
-                              color={"failure"}
-                              style={{ cursor: "not-allowed" }}
-                            >
-                              Esgotado
-                            </Button>
-                          )}
-                        </div>
-                      </Card>
-                    </div>
-                  ))}
+                            {produto.estoque > 0 ? (
+                              <Button
+                                onClick={() => getProdutoToAdd(produto.codigo)}
+                              >
+                                Comprar
+                              </Button>
+                            ) : (
+                              <Button
+                                color={"failure"}
+                                style={{ cursor: "not-allowed" }}
+                              >
+                                Esgotado
+                              </Button>
+                            )}
+                          </div>
+                        </Card>
+                      </div>
+                    ))}
+              </div>
             </div>
           </div>
         </div>
