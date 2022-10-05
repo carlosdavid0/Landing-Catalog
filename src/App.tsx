@@ -49,18 +49,6 @@ function App() {
       });
   }, []);
 
-  function handleCard() {
-    const card = JSON.parse(localStorage.getItem("produtos") || "[]");
-
-    setTotalCard(0);
-    card.map((item: any) => {
-      setTotalCard((totalCard) => totalCard + item.preco * item.qtd);
-    });
-
-    setCard(card);
-    setModalCard(true);
-  }
-
   function getProdutoToAdd(cod_produto: string) {
     const prod = produtos?.find((produto) => produto.codigo === cod_produto);
     setProduto(prod);
@@ -115,6 +103,32 @@ function App() {
       localStorage.setItem("theme", "light");
       setThemes("light");
     }
+
+
+    const card:ICard[] = JSON.parse(localStorage.getItem("produtos") || "[]");
+
+    card.forEach((item) => {
+      const produto = produtos?.find((p) => p.codigo === item.codigo);
+      
+      if (produto) {
+        if (item.qtd > produto.estoque || item.preco !== produto.venda) {
+          removeFromCard(item.codigo);
+        }
+      
+
+      }else{
+        removeFromCard(item.codigo);
+      }
+
+    })
+
+
+
+
+
+
+
+
   }, []);
 
   function onClose() {
@@ -159,6 +173,18 @@ function App() {
     const count = JSON.parse(localStorage.getItem("produtos") || "[]").length;
     setCount(count);
     handleCard();
+  }
+
+  function handleCard() {
+    const card: ICard[] = JSON.parse(localStorage.getItem("produtos") || "[]");
+
+    setTotalCard(0);
+    card.map((item: any) => {
+      setTotalCard((totalCard) => totalCard + item.preco * item.qtd);
+    });
+
+    setCard(card);
+    setModalCard(true);
   }
 
   return (
@@ -433,7 +459,7 @@ function App() {
                   placeholder="Pesquise Produtos"
                 />
               </div>
-              <div className="relative grid py-2 bg-gray-100 dark:bg-slate-700 grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3 px-6 my-2">
+              <div className="relative grid  py-2 bg-gray-100 dark:bg-slate-700 grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3 px-6 my-2">
                 {produtoSearch
                   ? produtoSearch.map((produto) => (
                       <div key={produto.codigo}>
@@ -463,9 +489,8 @@ function App() {
                             ) : (
                               <Button
                                 color={"failure"}
-                                onClick={() => getProdutoToAdd(produto.codigo)}
                               >
-                                Comprar
+                                Esgotado
                               </Button>
                             )}
                           </div>
