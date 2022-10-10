@@ -9,13 +9,15 @@ import {
   Navbar,
   TextInput,
 } from "flowbite-react";
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import reactLogo from "./assets/react.svg";
 
 import { AiOutlineShoppingCart } from "react-icons/ai";
 import axios from "axios";
 import { produto } from "./interfaces/Iprodutos";
 import { ICard } from "./interfaces/Icard";
+import Notificacao from "./components/Notification";
+import api from "./services/api";
 
 function App() {
   const [themes, setThemes] = useState("light");
@@ -35,12 +37,26 @@ function App() {
   useEffect(() => {
     const count = JSON.parse(localStorage.getItem("produtos") || "[]").length;
     setCount(count);
-    setLoading(true);
-    axios
-      .get("http://localhost:6060/produtos")
+
+    api
+      .get("/produtos")
       .then((response) => {
         setProdutos(response.data);
         setLoading(false);
+
+        const card: ICard[] = JSON.parse(localStorage.getItem("produtos") || "[]");
+
+        card.forEach((item) => {
+          const produto = response.data.find((p:produto) => p.codigo === item.codigo);
+          console.log(produto.venda);
+          console.log(item.preco);
+          
+          if (produto) {
+            if (item.qtd > produto.estoque || item.preco !== produto.venda) {
+              removeFromCard(item.codigo,false);
+            }
+          }
+        });
       })
       .catch((error) => {
         setProduto(undefined);
@@ -103,33 +119,9 @@ function App() {
       localStorage.setItem("theme", "light");
       setThemes("light");
     }
-
-
-    const card:ICard[] = JSON.parse(localStorage.getItem("produtos") || "[]");
-
-    card.forEach((item) => {
-      const produto = produtos?.find((p) => p.codigo === item.codigo);
-      
-      if (produto) {
-        if (item.qtd > produto.estoque || item.preco !== produto.venda) {
-          removeFromCard(item.codigo);
-        }
-      
-
-      }else{
-        removeFromCard(item.codigo);
-      }
-
-    })
-
-
-
-
-
-
-
-
   }, []);
+
+
 
   function onClose() {
     setModal(false);
@@ -161,7 +153,7 @@ function App() {
     setProdutoSearch(prod);
   }
 
-  function removeFromCard(cod_produto: string) {
+  function removeFromCard(cod_produto: string, card: boolean = true) {
     const produtos = JSON.parse(localStorage.getItem("produtos") || "[]");
 
     const prod = produtos.filter(
@@ -172,7 +164,7 @@ function App() {
 
     const count = JSON.parse(localStorage.getItem("produtos") || "[]").length;
     setCount(count);
-    handleCard();
+    card&&handleCard();
   }
 
   function handleCard() {
@@ -187,6 +179,30 @@ function App() {
     setModalCard(true);
   }
 
+  function addVenda() {
+    const getForm = document.querySelector("form");
+    const formData = new FormData(getForm as HTMLFormElement);
+
+    const { nome, telefone } = Object.fromEntries(formData);
+
+    if (nome.toString().trim() === "" || telefone.toString().trim() === "") {
+      Notificacao({ message: `Preecha todos os campos`, type: "info" });
+    } else {
+      const venda = {
+        cliente: nome,
+        telefone: telefone,
+        produtos: card,
+      };
+      api.post("/vendas", venda).then((res) => {
+        Notificacao({ message: `Venda realizada com sucesso`, type: "success" });
+        localStorage.removeItem("produtos");
+        setCount(0);
+        onCloseCard();
+      }).catch((err) => {
+        Notificacao({ message: `Erro ao realizar venda`, type: "error" });
+      })
+    }
+  }
   return (
     <div onKeyDown={onkeonkeydown} className="min-h-screen max-h-full">
       {loading ? (
@@ -251,89 +267,159 @@ function App() {
             produtoSearch?.length ? "h-full" : "h-screen"
           } bg-gray-100 dark:bg-slate-700`}
         >
-          <div className="h-full ">
-            {modalCard && card ? (
-              <Modal
-                show={modalCard}
-                onClose={onCloseCard}
-                position="top-center"
-              >
-                <Modal.Header>Carrinho de compras</Modal.Header>
-                <Modal.Body>
-                  <div className=" flex flex-col gap-3 ">
-                    {card.length >= 1 ? (
-                      card?.map((item, index: number) => (
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-4">
-                            <div>
-                              <p className="text-xs text-gray-400">
-                                {index + 1}
-                              </p>
+          <div className="h-full">
+            {modalCard && card && (
+              <div className="z-30">
+                <Modal
+                  contextMenu="true"
+                  size={"lg"}
+                  show={modalCard}
+                  onClose={onCloseCard}
+                  position="top-center"
+                >
+                  <Modal.Header>Carrinho de compras</Modal.Header>
+                  <Modal.Body>
+                    <div className=" flex flex-col gap-2 divide-y divide-gray-600 ">
+                      {card.length >= 1 && (
+                        <form
+                          onSubmit={(e) => {
+                            console.log(e);
+                          }}
+                        >
+                          <div className="flex flex-col gap-3">
+                            <div className="flex flex-col gap-1">
+                              <label
+                                htmlFor="nome"
+                                className="dark:text-gray-300 text-sm"
+                              >
+                                Nome
+                              </label>
+                              <input
+                                required
+                                type="text"
+                                name="nome"
+                                id="nome"
+                                placeholder="Digite seu nome"
+                                className="border border-gray-300 rounded-md  p-2"
+                              />
                             </div>
-                            <div className="dark:text-white text-xl">
-                              <p>
-                                {item.descricao[0] +
-                                  item.descricao.toLowerCase().substring(1)}
-                              </p>
-                              <p className="text-sm text-gray-400">
-                                <span className="text-xs text-gray-400 ">
-                                  {`${item?.preco?.toLocaleString("pt-br", {
-                                    style: "currency",
-                                    currency: "BRL",
-                                  })} x ${item?.qtd} = ${(
-                                    item.preco * item.qtd
-                                  ).toLocaleString("pt-br", {
-                                    style: "currency",
-                                    currency: "BRL",
-                                  })}`}
-                                </span>
-                              </p>
+                            <div className="grid grid-cols-2 gap-2">
+                              <div className="flex flex-col gap-1">
+                                <label
+                                  htmlFor="telefone"
+                                  className="dark:text-gray-300 text-sm"
+                                >
+                                  Telefone
+                                </label>
+                                <input
+                                  placeholder="Ex: (99) 99999-9999"
+                                  type="text"
+                                  name="telefone"
+                                  id="telefone"
+                                  className="border border-gray-300 rounded-md  p-2"
+                                />
+                              </div>
+                              <div className="flex flex-col gap-1">
+                                <label
+                                  htmlFor="pagamento"
+                                  className="dark:text-gray-300 text-sm"
+                                >
+                                  Forma de pagamento
+                                </label>
+                                <select
+                                  name="pagamento"
+                                  id="pagamento"
+                                  className="rounded-md"
+                                >
+                                  <option value="Dinheiro" selected>
+                                    Dinheiro
+                                  </option>
+                                  <option value="Cartão">Cartão</option>
+                                  <option value="Boleto">Boleto</option>
+                                </select>
+                              </div>
                             </div>
                           </div>
+                        </form>
+                      )}
+                      {card.length >= 1 ? (
+                        card?.map((item, index: number) => (
+                          <div className="flex items-center justify-between mt-3">
+                            <div className="flex items-center gap-4">
+                              <div>
+                                <p className="text-xs text-gray-400">
+                                  {index + 1}
+                                </p>
+                              </div>
+                              <div className="dark:text-white text-xl">
+                                <p>
+                                  {item.descricao[0] +
+                                    item.descricao.toLowerCase().substring(1)}
+                                </p>
+                                <p className="text-sm text-gray-400">
+                                  <span className="text-xs text-gray-400 ">
+                                    {`${item?.preco?.toLocaleString("pt-br", {
+                                      style: "currency",
+                                      currency: "BRL",
+                                    })} x ${item?.qtd} = ${(
+                                      item.preco * item.qtd
+                                    ).toLocaleString("pt-br", {
+                                      style: "currency",
+                                      currency: "BRL",
+                                    })}`}
+                                  </span>
+                                </p>
+                              </div>
+                            </div>
 
-                          <div>
-                            <Button
-                              color={"failure"}
-                              onClick={() => removeFromCard(item.codigo)}
-                            >
-                              Remover
-                            </Button>
+                            <div>
+                              <Button
+                                color={"failure"}
+                                onClick={() => removeFromCard(item.codigo)}
+                              >
+                                Remover
+                              </Button>
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="flex flex-col dark:text-white items-center justify-center gap-2">
+                          <div className="flex items-center justify-center dark:text-gray-400 text-gray-600">
+                            <AiOutlineShoppingCart size={50} />
+                          </div>
+                          <div className="flex items-center justify-center">
+                            <p className="text-xl font-medium">
+                              Carrinho vazio
+                            </p>
                           </div>
                         </div>
-                      ))
-                    ) : (
-                      <div className="flex flex-col dark:text-white items-center justify-center gap-2">
-                        <div className="flex items-center justify-center dark:text-gray-400 text-gray-600">
-                          <AiOutlineShoppingCart size={50} />
-                        </div>
-                        <div className="flex items-center justify-center">
-                          <p className="text-xl font-medium">Carrinho vazio</p>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </Modal.Body>
-                <Modal.Footer>
-                  <div className="flex justify-between items-center w-full">
-                    <div className="flex flex-col">
-                      <p className="dark:text-gray-400 text-sm">Total</p>
-                      <p className="text-2xl font-bold dark: dark:text-gray-100">
-                        {totalCard.toLocaleString("pt-br", {
-                          style: "currency",
-                          currency: "BRL",
-                        })}
-                      </p>
+                      )}
                     </div>
-                    <Button
-                      color={"success"}
-                      disabled={card.length === 0 ? true : false}
-                    >
-                      Finalizar
-                    </Button>
-                  </div>
-                </Modal.Footer>
-              </Modal>
-            ) : null}
+                  </Modal.Body>
+                  <Modal.Footer>
+                    <div className="flex justify-between items-center w-full">
+                      <div className="flex flex-col">
+                        <p className="dark:text-gray-400 text-sm">Total</p>
+                        <p className="text-2xl font-bold dark: dark:text-gray-100">
+                          {totalCard.toLocaleString("pt-br", {
+                            style: "currency",
+                            currency: "BRL",
+                          })}
+                        </p>
+                      </div>
+                      <Button
+                        type="submit"
+                        onClick={addVenda}
+                        color={"success"}
+                        disabled={card.length === 0 ? true : false}
+                      >
+                        Finalizar
+                      </Button>
+                    </div>
+                  </Modal.Footer>
+                </Modal>
+              </div>
+            )}
 
             {modal && produto ? (
               <Modal
@@ -371,7 +457,16 @@ function App() {
                       <TextInput
                         type="number"
                         min={1}
+                        max={produto?.estoque}
                         defaultValue={1}
+                        onInput={(e) => {
+                          console.log(e.currentTarget.max);
+                          if (e.currentTarget.value > e.currentTarget.max) {
+                            e.currentTarget.value = e.currentTarget.max;
+                          } else {
+                            e.currentTarget.value = e.currentTarget.value;
+                          }
+                        }}
                         onKeyDown={onkeonkeydown}
                         onChange={(e) => setQtdProdutos(Number(e.target.value))}
                       />
@@ -459,7 +554,11 @@ function App() {
                   placeholder="Pesquise Produtos"
                 />
               </div>
-              <div className="relative grid  py-2 bg-gray-100 dark:bg-slate-700 grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3 px-6 my-2">
+              <div
+                className={`relative grid  py-2 bg-gray-100 dark:bg-slate-700 grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3 px-6 my-2 ${
+                  modalCard && card ? "hidden" : ""
+                }`}
+              >
                 {produtoSearch
                   ? produtoSearch.map((produto) => (
                       <div key={produto.codigo}>
@@ -487,11 +586,7 @@ function App() {
                                 Comprar
                               </Button>
                             ) : (
-                              <Button
-                                color={"failure"}
-                              >
-                                Esgotado
-                              </Button>
+                              <Button color={"failure"}>Esgotado</Button>
                             )}
                           </div>
                         </Card>

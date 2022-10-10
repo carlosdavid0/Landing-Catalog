@@ -1,14 +1,32 @@
+import axios from "axios";
 import { Button, Card, Modal, Navbar } from "flowbite-react";
-import React, { useState } from "react";
+import moment from "moment";
+import React, { useEffect, useState } from "react";
 import { AiFillCheckCircle, AiFillCloseCircle } from "react-icons/ai";
+import { IVendas } from "../interfaces/iVendas";
+import api from "../services/api";
 
 export default function Vendas() {
   const [modal, setModal] = useState(false);
+  const [vendas, setVendas] = useState<IVendas[]>();
 
   const loop = new Array(150).fill(null);
   const teste = new Array(12).fill(null);
 
   document.title = "Dashboard - SysAngelim";
+
+  useEffect(() => {
+    document.querySelector('body')?.classList.toggle(localStorage.getItem('theme') || 'light');
+
+    api.get('/vendas').then(response => {
+      setVendas(response.data);
+      console.log(response.data);
+    })
+
+    document.querySelector('body')?.classList.toggle(localStorage.getItem('theme') || 'light');
+
+  }, [])
+
   return (
     <main className="bg-gray-100  dark:bg-slate-700 min-h-screen max-h-full">
       <Modal
@@ -20,11 +38,10 @@ export default function Vendas() {
         <Modal.Header>Title</Modal.Header>
         <Modal.Body>
           <div
-            className={`flex flex-col gap-3 divide-gray-600 divide-y-2  ${
-              teste.length > 5 ? "overflow-y-scroll" : "overflow-y-hidden teste"
-            } ${teste.length > 5 ? "h-72" : "h-full"}`}
+            className={`flex flex-col gap-3 divide-gray-600 divide-y-2  ${vendas?.length ? "overflow-y-scroll" : "overflow-y-hidden vendas"
+              } `}
           >
-            {teste.map((_, i) => (
+            {vendas?.map((item, i) => (
               <div className="flex items-center gap-4">
                 <div className="">
                   <p className="text-xs text-gray-400">{i + 1}</p>
@@ -103,18 +120,18 @@ export default function Vendas() {
             </div>
           </header>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 py-4 select-none ">
-            {loop.map((item, index) => (
+            {vendas?.map((item, index) => (
               <div className="hover:shadow-2xl hover:transition-shadow">
                 <Card>
                   <header>
                     <p className="text-sm text-gray-400">Cliente:</p>
                     <h2 className="text-3xl font-semibold dark:text-white text-gray-900">
-                      Carlos David
+                      {item.nome_cliente}
                     </h2>
                   </header>
 
                   <div className="-mt-2 flex gap-4">
-                    <p className="text-gray-500 text-sm"> 12/09/2022 17:51 </p>
+                    <p className="text-gray-500 text-sm"> {moment(item.created_at).format('DD/MM/YYYY HH:mm:ss')}</p>
                     <p className="text-gray-500 text-sm">Vendedor: Balcão</p>
                   </div>
 
