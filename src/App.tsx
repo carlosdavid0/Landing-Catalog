@@ -37,7 +37,7 @@ function App() {
   useEffect(() => {
     const count = JSON.parse(localStorage.getItem("produtos") || "[]").length;
     setCount(count);
-
+    setLoading(true);
     api
       .get("/produtos")
       .then((response) => {
@@ -183,7 +183,7 @@ function App() {
     const getForm = document.querySelector("form");
     const formData = new FormData(getForm as HTMLFormElement);
 
-    const { nome, telefone } = Object.fromEntries(formData);
+    const { nome, telefone, pagamento} = Object.fromEntries(formData);
 
     if (nome.toString().trim() === "" || telefone.toString().trim() === "") {
       Notificacao({ message: `Preecha todos os campos`, type: "info" });
@@ -192,11 +192,16 @@ function App() {
         cliente: nome,
         telefone: telefone,
         produtos: card,
+        total: totalCard,
+        pagamento: pagamento,
+
       };
       api.post("/vendas", venda).then((res) => {
         Notificacao({ message: `Venda realizada com sucesso`, type: "success" });
         localStorage.removeItem("produtos");
         setCount(0);
+        setCard([]);
+        setTotalCard(0);
         onCloseCard();
       }).catch((err) => {
         Notificacao({ message: `Erro ao realizar venda`, type: "error" });

@@ -3,29 +3,69 @@ import { Button, Card, Modal, Navbar } from "flowbite-react";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
 import { AiFillCheckCircle, AiFillCloseCircle } from "react-icons/ai";
+import Notificacao from "../components/Notification";
 import { IVendas } from "../interfaces/iVendas";
 import api from "../services/api";
 
 export default function Vendas() {
   const [modal, setModal] = useState(false);
   const [vendas, setVendas] = useState<IVendas[]>();
-
-  const loop = new Array(150).fill(null);
-  const teste = new Array(12).fill(null);
+  const [venda, setVenda] = useState<IVendas>();
 
   document.title = "Dashboard - SysAngelim";
 
   useEffect(() => {
-    document.querySelector('body')?.classList.toggle(localStorage.getItem('theme') || 'light');
-
-    api.get('/vendas').then(response => {
+    api.get("/vendas").then((response) => {
       setVendas(response.data);
-      console.log(response.data);
-    })
+    });
 
-    document.querySelector('body')?.classList.toggle(localStorage.getItem('theme') || 'light');
+    document
+      .querySelector("body")
+      ?.classList.add(localStorage.getItem("theme") || "light");
+  }, []);
 
-  }, [])
+  function getVenda(id: string) {
+    setVenda(vendas?.find((venda) => venda.id === id));
+    setModal(true);
+  }
+
+  function aproveVenda(id: string) {
+    api
+      .put(`/vendas/${id}`, {
+        status: "aprovado",
+      })
+      .then((response) => {
+        Notificacao({
+          message: "Venda aprovada com sucesso!",
+          type: "success",
+        });
+        setModal(false);
+        setVenda(undefined);
+        window.location.reload();
+      })
+      .catch((error) => {
+        Notificacao({ message: "Erro ao aprovar venda!", type: "error" });
+      });
+  }
+
+  function cancelVenda(id: string) {
+    api
+      .put(`/vendas/${id}`, {
+        status: "rejeitado",
+      })
+      .then((response) => {
+        Notificacao({
+          message: "Venda cancelada com sucesso!",
+          type: "success",
+        });
+        setModal(false);
+        setVenda(undefined);
+        window.location.reload();
+      })
+      .catch((error) => {
+        Notificacao({ message: "Erro ao cancelar venda!", type: "error" });
+      });
+  }
 
   return (
     <main className="bg-gray-100  dark:bg-slate-700 min-h-screen max-h-full">
@@ -33,41 +73,74 @@ export default function Vendas() {
         show={modal}
         position={"top-center"}
         size="lg"
-        onClose={() => setModal(false)}
+        onClose={() => {
+          setModal(false);
+          setVenda(undefined);
+        }}
       >
-        <Modal.Header>Title</Modal.Header>
+        <Modal.Header>{"Detalhes do pedido"}</Modal.Header>
         <Modal.Body>
           <div
-            className={`flex flex-col gap-3 divide-gray-600 divide-y-2  ${vendas?.length ? "overflow-y-scroll" : "overflow-y-hidden vendas"
-              } `}
+            className={`flex flex-col gap-3 divide-gray-600 divide-y-2  ${
+              vendas?.length ? "overflow-y-scroll" : "overflow-y-hidden vendas"
+            } `}
           >
-            {vendas?.map((item, i) => (
+            <div className="">
+              <h1 className="text-gray-200 text-xl">
+                <b>Cliente:</b> {venda?.nome_cliente}
+              </h1>
+
+              <div className="grid grid-cols-2 ">
+                <h1 className="text-gray-200">
+                  <b>Telefone</b>: {venda?.telefone}
+                </h1>
+                <h1 className="text-gray-200">
+                  <b>Telefone</b>: {venda?.telefone}
+                </h1>
+              </div>
+            </div>
+
+            {venda?.produtos?.map((item, i) => (
               <div className="flex items-center gap-4">
                 <div className="">
                   <p className="text-xs text-gray-400">{i + 1}</p>
                 </div>
                 <div className="dark:text-white text-xl">
-                  <p>Tempero de alguma coisa aqui</p>
-                  <p className="text-sm text-gray-400">
+                  <p>
+                    {item.descricao[0] +
+                      item.descricao.toLowerCase().substring(1)}
+                  </p>
+                  <p className="text-md text-gray-400">
                     <span className="text-xs text-gray-400 ">
-                      R$ 15,00 * 2 = R$ 30,00
+                      {item.preco.toLocaleString("pt-br", {
+                        style: "currency",
+                        currency: "BRL",
+                      })}{" "}
+                      * {item.qtd} ={" "}
+                      {(item.qtd * item.preco).toLocaleString("pt-br", {
+                        style: "currency",
+                        currency: "BRL",
+                      })}
                     </span>
                   </p>
                 </div>
               </div>
             ))}
           </div>
-
-          <div className="flex items-center gap-4">
-            d
-          </div>
         </Modal.Body>
         <Modal.Footer>
-          <Button color={"failure"}>
-            <AiFillCloseCircle size={30} />
+          <Button
+            color={"failure"}
+            onClick={() => cancelVenda(venda?.id || "")}
+          >
+            <AiFillCloseCircle size={30} /> Rejeitar
           </Button>
-          <Button color={"success"}>
+          <Button
+            color={"success"}
+            onClick={() => aproveVenda(venda?.id || "")}
+          >
             <AiFillCheckCircle size={30} />
+            Aprovar
           </Button>
         </Modal.Footer>
       </Modal>
@@ -75,26 +148,11 @@ export default function Vendas() {
       <header className="bg-white dark:bg-slate-800 sticky top-0">
         <div className="container mx-auto">
           <Navbar fluid={true} rounded={true}>
-            <Navbar.Brand href="https://flowbite.com/">
-              <img
-                src="https://flowbite.com/docs/images/logo.svg"
-                className="mr-3 h-6 sm:h-9"
-                alt="Flowbite Logo"
-              />
+            <Navbar.Brand href="/">
               <span className="self-center whitespace-nowrap text-xl font-semibold dark:text-white">
-                Flowbite
+                Comercial Angelim
               </span>
             </Navbar.Brand>
-            <Navbar.Toggle />
-            <Navbar.Collapse>
-              <Navbar.Link href="/navbars" active={true}>
-                Home
-              </Navbar.Link>
-              <Navbar.Link href="/navbars">About</Navbar.Link>
-              <Navbar.Link href="/navbars">Services</Navbar.Link>
-              <Navbar.Link href="/navbars">Pricing</Navbar.Link>
-              <Navbar.Link href="/navbars">Contact</Navbar.Link>
-            </Navbar.Collapse>
           </Navbar>
         </div>
       </header>
@@ -131,24 +189,53 @@ export default function Vendas() {
                   </header>
 
                   <div className="-mt-2 flex gap-4">
-                    <p className="text-gray-500 text-sm"> {moment(item.created_at).format('DD/MM/YYYY HH:mm:ss')}</p>
-                    <p className="text-gray-500 text-sm">Vendedor: Balcão</p>
+                    <p className="text-gray-500 text-sm">
+                      {moment(item.created_at).format("DD/MM/YYYY HH:mm:ss")}
+                    </p>
+                    <p className="text-gray-500 text-sm">
+                      {item.forma_pagamento}
+                    </p>
+                    {item.status === "pendente" && (
+                      <p className="animate-pulse text-yellow-400 text-sm">
+                        {item.status}
+                      </p>
+                    )}
+                    {item.status === "aprovado" && (
+                      <p className="text-green-400 text-sm">{item.status}</p>
+                    )}
+                    {item.status === "rejeitado" && (
+                      <p className=" text-red-400 text-sm">{item.status}</p>
+                    )}
                   </div>
 
                   <div className="">
+                    <div className="text-lg font-medium text-gray-300">
+                    Total: {item.total.toLocaleString("pt-br", {
+                      style: "currency",
+                      currency: "BRL",
+                    })}
+                    </div>
                     <p
                       className="text-blue-600 cursor-pointer  hover:underline"
-                      onClick={() => setModal(true)}
+                      onClick={() => getVenda(item.id || "")}
                     >
                       Ver Produtos
                     </p>
                   </div>
 
                   <div className="flex gap-4 items-center">
-                    <Button color={"failure"}>
+                    <Button
+                      color={"failure"}
+                      onClick={() => cancelVenda(item.id || "")}
+                      disabled={item.status !== "pendente" ? true : false}
+                    >
                       <AiFillCloseCircle size={30} />
                     </Button>
-                    <Button color={"success"}>
+                    <Button
+                      color={"success"}
+                      onClick={() => aproveVenda(item.id || "")}
+                      disabled={item.status !== "pendente" ? true : false}
+                    >
                       <AiFillCheckCircle size={30} />
                     </Button>
                   </div>
