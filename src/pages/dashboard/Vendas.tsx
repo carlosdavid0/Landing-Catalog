@@ -3,9 +3,9 @@ import { Button, Card, Modal, Navbar } from "flowbite-react";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
 import { AiFillCheckCircle, AiFillCloseCircle } from "react-icons/ai";
-import Notificacao from "../components/Notification";
-import { IVendas } from "../interfaces/iVendas";
-import api from "../services/api";
+import Notificacao from "../../components/Notification";
+import { IVendas } from "../../interfaces/iVendas";
+import api from "../../services/api";
 
 export default function Vendas() {
   const [modal, setModal] = useState(false);
@@ -81,27 +81,27 @@ export default function Vendas() {
         <Modal.Header>{"Detalhes do pedido"}</Modal.Header>
         <Modal.Body>
           <div
-            className={`flex flex-col gap-3 divide-gray-600 divide-y-2  ${
+            className={`flex flex-col gap-3 dark:divide-gray-600 divide-y-2 divide-gray-100  ${
               vendas?.length ? "overflow-y-scroll" : "overflow-y-hidden vendas"
             } `}
           >
             <div className="">
-              <h1 className="text-gray-200 text-xl">
+              <h1 className="dark:text-gray-200 text-xl">
                 <b>Cliente:</b> {venda?.nome_cliente}
               </h1>
 
               <div className="grid grid-cols-2 ">
-                <h1 className="text-gray-200">
+                <h1 className="dark:text-gray-200">
                   <b>Telefone</b>: {venda?.telefone}
                 </h1>
-                <h1 className="text-gray-200">
-                  <b>Telefone</b>: {venda?.telefone}
+                <h1 className="dark:text-gray-200">
+                  <b>Telefone</b>: {venda?.forma_pagamento}
                 </h1>
               </div>
             </div>
 
             {venda?.produtos?.map((item, i) => (
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-4 p-2">
                 <div className="">
                   <p className="text-xs text-gray-400">{i + 1}</p>
                 </div>
@@ -130,12 +130,14 @@ export default function Vendas() {
         </Modal.Body>
         <Modal.Footer>
           <Button
+            disabled={venda?.status === "aprovado" || venda?.status === "rejeitado"}
             color={"failure"}
             onClick={() => cancelVenda(venda?.id || "")}
           >
             <AiFillCloseCircle size={30} /> Rejeitar
           </Button>
           <Button
+            disabled={venda?.status === "aprovado" || venda?.status === "rejeitado"}
             color={"success"}
             onClick={() => aproveVenda(venda?.id || "")}
           >

@@ -209,7 +209,7 @@ function App() {
     }
   }
   return (
-    <div onKeyDown={onkeonkeydown} className="min-h-screen max-h-full">
+    <div  className="min-h-screen max-h-full">
       {loading ? (
         <div className="h-screen bg-gray-100 dark:bg-slate-700">
           <div>
@@ -284,7 +284,7 @@ function App() {
                 >
                   <Modal.Header>Carrinho de compras</Modal.Header>
                   <Modal.Body>
-                    <div className=" flex flex-col gap-2 divide-y divide-gray-600 ">
+                    <div className=" flex flex-col gap-2 divide-y dark:divide-gray-600 ">
                       {card.length >= 1 && (
                         <form
                           onSubmit={(e) => {
@@ -349,7 +349,7 @@ function App() {
                       )}
                       {card.length >= 1 ? (
                         card?.map((item, index: number) => (
-                          <div className="flex items-center justify-between mt-3">
+                          <div className="flex items-center justify-between mt-3 p-2">
                             <div className="flex items-center gap-4">
                               <div>
                                 <p className="text-xs text-gray-400">
@@ -460,18 +460,11 @@ function App() {
                     <div className="mt-2">
                       <Label>Quantidade:</Label>
                       <TextInput
+                      
                         type="number"
                         min={1}
                         max={produto?.estoque}
                         defaultValue={1}
-                        onInput={(e) => {
-                          console.log(e.currentTarget.max);
-                          if (e.currentTarget.value > e.currentTarget.max) {
-                            e.currentTarget.value = e.currentTarget.max;
-                          } else {
-                            e.currentTarget.value = e.currentTarget.value;
-                          }
-                        }}
                         onKeyDown={onkeonkeydown}
                         onChange={(e) => setQtdProdutos(Number(e.target.value))}
                       />
@@ -553,7 +546,7 @@ function App() {
 
                 <input
                   onChange={(e) => search(e.target.value)}
-                  type="search"
+                  type="text"
                   id="default-search"
                   className="block p-4 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   placeholder="Pesquise Produtos"
