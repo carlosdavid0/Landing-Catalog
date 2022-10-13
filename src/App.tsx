@@ -18,6 +18,7 @@ import { produto } from "./interfaces/Iprodutos";
 import { ICard } from "./interfaces/Icard";
 import Notificacao from "./components/Notification";
 import api from "./services/api";
+import FooterAPP from "./components/Footer";
 
 function App() {
   const [themes, setThemes] = useState("light");
@@ -44,16 +45,18 @@ function App() {
         setProdutos(response.data);
         setLoading(false);
 
-        const card: ICard[] = JSON.parse(localStorage.getItem("produtos") || "[]");
+        const card: ICard[] = JSON.parse(
+          localStorage.getItem("produtos") || "[]"
+        );
 
         card.forEach((item) => {
-          const produto = response.data.find((p:produto) => p.codigo === item.codigo);
-          console.log(produto.venda);
-          console.log(item.preco);
-          
+          const produto = response.data.find(
+            (p: produto) => p.codigo === item.codigo
+          );
+
           if (produto) {
             if (item.qtd > produto.estoque || item.preco !== produto.venda) {
-              removeFromCard(item.codigo,false);
+              removeFromCard(item.codigo, false);
             }
           }
         });
@@ -61,7 +64,6 @@ function App() {
       .catch((error) => {
         setProduto(undefined);
         setLoading(false);
-        console.log(error);
       });
   }, []);
 
@@ -121,8 +123,6 @@ function App() {
     }
   }, []);
 
-
-
   function onClose() {
     setModal(false);
     setProduto(undefined);
@@ -164,7 +164,7 @@ function App() {
 
     const count = JSON.parse(localStorage.getItem("produtos") || "[]").length;
     setCount(count);
-    card&&handleCard();
+    card && handleCard();
   }
 
   function handleCard() {
@@ -183,7 +183,7 @@ function App() {
     const getForm = document.querySelector("form");
     const formData = new FormData(getForm as HTMLFormElement);
 
-    const { nome, telefone, pagamento} = Object.fromEntries(formData);
+    const { nome, telefone, pagamento } = Object.fromEntries(formData);
 
     if (nome.toString().trim() === "" || telefone.toString().trim() === "") {
       Notificacao({ message: `Preecha todos os campos`, type: "info" });
@@ -194,22 +194,27 @@ function App() {
         produtos: card,
         total: totalCard,
         pagamento: pagamento,
-
       };
-      api.post("/vendas", venda).then((res) => {
-        Notificacao({ message: `Venda realizada com sucesso`, type: "success" });
-        localStorage.removeItem("produtos");
-        setCount(0);
-        setCard([]);
-        setTotalCard(0);
-        onCloseCard();
-      }).catch((err) => {
-        Notificacao({ message: `Erro ao realizar venda`, type: "error" });
-      })
+      api
+        .post("/vendas", venda)
+        .then((res) => {
+          Notificacao({
+            message: `Venda realizada com sucesso`,
+            type: "success",
+          });
+          localStorage.removeItem("produtos");
+          setCount(0);
+          setCard([]);
+          setTotalCard(0);
+          onCloseCard();
+        })
+        .catch((err) => {
+          Notificacao({ message: `Erro ao realizar venda`, type: "error" });
+        });
     }
   }
   return (
-    <div  className="min-h-screen max-h-full">
+    <div className="min-h-screen max-h-full">
       {loading ? (
         <div className="h-screen bg-gray-100 dark:bg-slate-700">
           <div>
@@ -286,11 +291,7 @@ function App() {
                   <Modal.Body>
                     <div className=" flex flex-col gap-2 divide-y dark:divide-gray-600 ">
                       {card.length >= 1 && (
-                        <form
-                          onSubmit={(e) => {
-                            console.log(e);
-                          }}
-                        >
+                        <form>
                           <div className="flex flex-col gap-3">
                             <div className="flex flex-col gap-1">
                               <label
@@ -460,7 +461,6 @@ function App() {
                     <div className="mt-2">
                       <Label>Quantidade:</Label>
                       <TextInput
-                      
                         type="number"
                         min={1}
                         max={produto?.estoque}
@@ -546,7 +546,7 @@ function App() {
 
                 <input
                   onChange={(e) => search(e.target.value)}
-                  type="text"
+                  type="search"
                   id="default-search"
                   className="block p-4 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   placeholder="Pesquise Produtos"
@@ -630,8 +630,10 @@ function App() {
               </div>
             </div>
           </div>
+         
         </div>
       )}
+      <FooterAPP />
     </div>
   );
 }

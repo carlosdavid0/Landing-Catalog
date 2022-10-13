@@ -1,21 +1,25 @@
 import { Button } from "flowbite-react";
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Notificacao from "../../components/Notification";
 import api from "../../services/api";
 
 export default function Login() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const navigate = useNavigate();
 
     const [loading, setLoading] = useState(false);
 
     function auth(){
         setLoading(true);
         api.post('/login', {email, password}).then((response) => {
-            api.defaults.headers.common['authorization'] = `${response.data.token}`;
+            api.defaults.headers.common['Authorization'] = `${response.data.token}`;
             localStorage.setItem('token', response.data.token);
             Notificacao({message: 'Login efetuado com sucesso!', type: 'success'});
             setLoading(false);
+            navigate('/dashboard');
+
         }).catch((error) => {
             
             Notificacao({message:error.response.data.message ,type: 'error'});

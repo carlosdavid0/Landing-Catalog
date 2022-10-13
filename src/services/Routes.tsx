@@ -6,20 +6,19 @@ import App from "../App";
 import Login from "../pages/dashboard/login";
 import VendaDetalhe from "../pages/VendaDetalhe";
 import Vendas from "../pages/dashboard/Vendas";
+import Nav from "../components/Global";
+import Dashboard from "../pages/dashboard";
+import Users from "../pages/dashboard/Users";
 
 export default function Routes() {
   return (
     <Router>
       <Route path="/" element={<App />} />
-      <Route path="/vendas" element={<Vendas />} />
-      <Route path="/venda/:id" element={<VendaDetalhe />} />
-
-      <Route path="/dashboard/">
-        <Route path="login" element={<Login />} />
-        <Route path="t" element={<Outlet />}>
-          <Route index={true} element={<h1>David</h1>} />
-        </Route>
-
+      <Route path="/dashboard/login" element={<Login />} />
+      <Route path="/dashboard" element={<Nav />}>
+        <Route index element={<Dashboard />} />
+        <Route path="vendas" element={<Vendas />} />
+        <Route path="users" element={<Users />} />
         <Route path="*" element={<Navigate to="/dashboard/login" />} />
       </Route>
       <Route path="*" element={<Navigate to="/" />} />

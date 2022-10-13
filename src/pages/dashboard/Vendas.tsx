@@ -3,6 +3,7 @@ import { Button, Card, Modal, Navbar } from "flowbite-react";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
 import { AiFillCheckCircle, AiFillCloseCircle } from "react-icons/ai";
+import Header from "../../components/base/Header";
 import Notificacao from "../../components/Notification";
 import { IVendas } from "../../interfaces/iVendas";
 import api from "../../services/api";
@@ -10,18 +11,28 @@ import api from "../../services/api";
 export default function Vendas() {
   const [modal, setModal] = useState(false);
   const [vendas, setVendas] = useState<IVendas[]>();
+  const [loading, setLoading] = useState(false);
   const [venda, setVenda] = useState<IVendas>();
 
   document.title = "Dashboard - SysAngelim";
 
   useEffect(() => {
-    api.get("/vendas").then((response) => {
-      setVendas(response.data);
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        setModal(false);
+      }
     });
-
-    document
-      .querySelector("body")
-      ?.classList.add(localStorage.getItem("theme") || "light");
+    setLoading(true);
+    api
+      .get("/vendas")
+      .then((response) => {
+        setVendas(response.data);
+        setLoading(false);
+      })
+      .catch((error) => {
+        Notificacao({ message: "Erro ao carregar as vendas", type: "error" });
+        setLoading(false);
+      });
   }, []);
 
   function getVenda(id: string) {
@@ -68,11 +79,16 @@ export default function Vendas() {
   }
 
   return (
-    <main className="bg-gray-100  dark:bg-slate-700 min-h-screen max-h-full">
+    <main
+      className="min-h-screen max-h-full"
+      onKeyDown={(e) => {
+        console.log(e);
+      }}
+    >
       <Modal
         show={modal}
         position={"top-center"}
-        size="lg"
+        size="2xl"
         onClose={() => {
           setModal(false);
           setVenda(undefined);
@@ -90,12 +106,12 @@ export default function Vendas() {
                 <b>Cliente:</b> {venda?.nome_cliente}
               </h1>
 
-              <div className="grid grid-cols-2 ">
+              <div className="grid grid-cols-3 ">
                 <h1 className="dark:text-gray-200">
                   <b>Telefone</b>: {venda?.telefone}
                 </h1>
                 <h1 className="dark:text-gray-200">
-                  <b>Telefone</b>: {venda?.forma_pagamento}
+                  <b>Pagamento em</b>: {venda?.forma_pagamento}
                 </h1>
               </div>
             </div>
@@ -116,7 +132,8 @@ export default function Vendas() {
                         style: "currency",
                         currency: "BRL",
                       })}{" "}
-                      * {item.qtd} ={" "}
+                      {` * `}
+                      {item.qtd} =
                       {(item.qtd * item.preco).toLocaleString("pt-br", {
                         style: "currency",
                         currency: "BRL",
@@ -130,14 +147,18 @@ export default function Vendas() {
         </Modal.Body>
         <Modal.Footer>
           <Button
-            disabled={venda?.status === "aprovado" || venda?.status === "rejeitado"}
+            disabled={
+              venda?.status === "aprovado" || venda?.status === "rejeitado"
+            }
             color={"failure"}
             onClick={() => cancelVenda(venda?.id || "")}
           >
             <AiFillCloseCircle size={30} /> Rejeitar
           </Button>
           <Button
-            disabled={venda?.status === "aprovado" || venda?.status === "rejeitado"}
+            disabled={
+              venda?.status === "aprovado" || venda?.status === "rejeitado"
+            }
             color={"success"}
             onClick={() => aproveVenda(venda?.id || "")}
           >
@@ -147,21 +168,10 @@ export default function Vendas() {
         </Modal.Footer>
       </Modal>
 
-      <header className="bg-white dark:bg-slate-800 sticky top-0">
-        <div className="container mx-auto">
-          <Navbar fluid={true} rounded={true}>
-            <Navbar.Brand href="/">
-              <span className="self-center whitespace-nowrap text-xl font-semibold dark:text-white">
-                Comercial Angelim
-              </span>
-            </Navbar.Brand>
-          </Navbar>
-        </div>
-      </header>
-      <section className="container mx-auto mt-2">
-        <section className="dark:divide-gray-600 divide-y mx-5">
-          <header className="flex items-center justify-between mt-3.5 mb-4">
-            <h1 className="text-4xl dark:text-white text-gray-800">Vendas</h1>
+      <section className="dark:divide-gray-600 divide-y mx-5">
+        <Header
+          Page="Vendas"
+          render={
             <div className="">
               <label
                 htmlFor="default-search"
@@ -178,74 +188,97 @@ export default function Vendas() {
                 />
               </div>
             </div>
-          </header>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 py-4 select-none ">
-            {vendas?.map((item, index) => (
-              <div className="hover:shadow-2xl hover:transition-shadow">
-                <Card>
-                  <header>
-                    <p className="text-sm text-gray-400">Cliente:</p>
-                    <h2 className="text-3xl font-semibold dark:text-white text-gray-900">
-                      {item.nome_cliente}
-                    </h2>
-                  </header>
+          }
+        />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 py-4 select-none ">
+          {vendas?.map((item, index) => (
+            <div
+              className="hover:shadow-2xl hover:transition-shadow"
+              key={index}
+            >
+              <Card>
+                <header>
+                  <p className="text-sm text-gray-400">Cliente:</p>
+                  <h2 className="text-3xl font-semibold dark:text-white text-gray-900">
+                    {item.nome_cliente}
+                  </h2>
+                </header>
 
-                  <div className="-mt-2 flex gap-4">
-                    <p className="text-gray-500 text-sm">
-                      {moment(item.created_at).format("DD/MM/YYYY HH:mm:ss")}
+                <div className="-mt-2 flex gap-4">
+                  <p className="text-gray-500 text-sm">
+                    {moment(item.created_at).format("DD/MM/YYYY HH:mm:ss")}
+                  </p>
+                  <p className="text-gray-500 text-sm">
+                    {item.forma_pagamento}
+                  </p>
+                  {item.status === "pendente" && (
+                    <p className="animate-pulse text-yellow-400 text-sm">
+                      {item.status}
                     </p>
-                    <p className="text-gray-500 text-sm">
-                      {item.forma_pagamento}
+                  )}
+                  {item.status === "aprovado" && (
+                    <p className="text-green-400 text-sm">{item.status}</p>
+                  )}
+                  {item.status === "rejeitado" && (
+                    <p className=" dark:text-red-400 text-red-600 font-bold text-sm">
+                      {item.status}
                     </p>
-                    {item.status === "pendente" && (
-                      <p className="animate-pulse text-yellow-400 text-sm">
-                        {item.status}
-                      </p>
-                    )}
-                    {item.status === "aprovado" && (
-                      <p className="text-green-400 text-sm">{item.status}</p>
-                    )}
-                    {item.status === "rejeitado" && (
-                      <p className=" text-red-400 text-sm">{item.status}</p>
-                    )}
-                  </div>
+                  )}
+                </div>
 
-                  <div className="">
-                    <div className="text-lg font-medium text-gray-300">
-                    Total: {item.total.toLocaleString("pt-br", {
+                <div className="">
+                  <div className="text-lg font-medium dark:text-gray-300">
+                    Total:
+                    {item.total.toLocaleString("pt-br", {
                       style: "currency",
                       currency: "BRL",
                     })}
-                    </div>
-                    <p
-                      className="text-blue-600 cursor-pointer  hover:underline"
-                      onClick={() => getVenda(item.id || "")}
-                    >
-                      Ver Produtos
-                    </p>
                   </div>
+                  <p
+                    className="text-blue-600 cursor-pointer  hover:underline"
+                    onClick={() => getVenda(item.id || "")}
+                  >
+                    Ver Produtos
+                  </p>
+                </div>
 
-                  <div className="flex gap-4 items-center">
-                    <Button
-                      color={"failure"}
-                      onClick={() => cancelVenda(item.id || "")}
-                      disabled={item.status !== "pendente" ? true : false}
-                    >
-                      <AiFillCloseCircle size={30} />
-                    </Button>
-                    <Button
-                      color={"success"}
-                      onClick={() => aproveVenda(item.id || "")}
-                      disabled={item.status !== "pendente" ? true : false}
-                    >
-                      <AiFillCheckCircle size={30} />
-                    </Button>
-                  </div>
-                </Card>
-              </div>
-            ))}
-          </div>
-        </section>
+                <div className="flex gap-4 items-center">
+                  <Button
+                    color={"failure"}
+                    onClick={() => cancelVenda(item.id || "")}
+                    disabled={item.status !== "pendente" ? true : false}
+                  >
+                    <AiFillCloseCircle size={30} />
+                  </Button>
+                  <Button
+                    color={"success"}
+                    onClick={() => aproveVenda(item.id || "")}
+                    disabled={item.status !== "pendente" ? true : false}
+                  >
+                    <AiFillCheckCircle size={30} />
+                  </Button>
+                </div>
+              </Card>
+            </div>
+          ))}
+
+          {vendas?.length === 0 && (
+            <div className="flex">
+              <p className="text-2xl text-gray-400">Nenhuma venda encontrada</p>
+            </div>
+          )}
+          {loading && (
+            <div role="status" className="max-w-sm animate-pulse">
+              <div className="h-2.5 bg-gray-200 rounded-full dark:bg-gray-700 w-48 mb-4"></div>
+              <div className="h-2 bg-gray-200 rounded-full dark:bg-gray-700 max-w-[360px] mb-2.5"></div>
+              <div className="h-2 bg-gray-200 rounded-full dark:bg-gray-700 mb-2.5"></div>
+              <div className="h-2 bg-gray-200 rounded-full dark:bg-gray-700 max-w-[330px] mb-2.5"></div>
+              <div className="h-2 bg-gray-200 rounded-full dark:bg-gray-700 max-w-[300px] mb-2.5"></div>
+              <div className="h-2 bg-gray-200 rounded-full dark:bg-gray-700 max-w-[360px]"></div>
+              <span className="sr-only">Loading...</span>
+            </div>
+          )}
+        </div>
       </section>
     </main>
   );
