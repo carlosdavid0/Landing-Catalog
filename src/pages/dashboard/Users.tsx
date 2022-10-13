@@ -22,18 +22,21 @@ export default function Users() {
     setLoading(true);
     e.preventDefault();
     const data = new FormData(e.target as HTMLFormElement);
-    const user = {
-      name: data.get("name"),
-      email: data.get("email"),
-      password: data.get("password"),
-      avatar: data.get("avatar"),
-    };
+    // transform avatar in file to send to api
+    const avatar = data.get("avatar") as File;
+    const avatarFile = new File([avatar], "avatar.png");
 
+    data.append("avatar", avatarFile);
+   
     api
-      .post("/users", user)
+      .post("/users", data, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        }
+      })
       .then((response) => {
         setLoading(false);
-        
+
         setModal(false);
         Notificacao({
           message: "Usuário criado com sucesso!",
@@ -107,7 +110,7 @@ export default function Users() {
                       <Spinner
                         aria-label="Extra small spinner example"
                         size="lg"
-                        color={'success'}
+                        color={"success"}
                       />
                     ) : (
                       "Criar"

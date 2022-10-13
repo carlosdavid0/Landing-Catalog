@@ -9,11 +9,9 @@ import {
   Navbar,
   TextInput,
 } from "flowbite-react";
-import { useEffect, useLayoutEffect, useState } from "react";
-import reactLogo from "./assets/react.svg";
+import { useEffect, useState } from "react";
 
-import { AiOutlineShoppingCart } from "react-icons/ai";
-import axios from "axios";
+import { AiOutlineShoppingCart, AiOutlineSearch } from "react-icons/ai";
 import { produto } from "./interfaces/Iprodutos";
 import { ICard } from "./interfaces/Icard";
 import Notificacao from "./components/Notification";
@@ -30,12 +28,23 @@ function App() {
   const [card, setCard] = useState<ICard[]>();
   const [totalCard, setTotalCard] = useState(0);
 
+  const [showSearch, setShowSearch] = useState(false);
+
   const [produtos, setProdutos] = useState<produto[]>();
   const [produtoSearch, setProdutoSearch] = useState<produto[]>();
   const [qtdProdutos, setQtdProdutos] = useState(1);
   const [produto, setProduto] = useState<produto>();
 
   useEffect(() => {
+    // detect scroll
+    window.addEventListener("scroll", () => {
+      if (window.scrollY > 100) {
+        setShowSearch(true);
+      } else {
+        setShowSearch(false);
+      }
+    });
+
     const count = JSON.parse(localStorage.getItem("produtos") || "[]").length;
     setCount(count);
     setLoading(true);
@@ -77,6 +86,8 @@ function App() {
     if (e.key === "Escape") {
       onClose();
     }
+
+    const max = e.target.getAttribute("max");
 
     if (
       e.key === "." ||
@@ -213,10 +224,11 @@ function App() {
         });
     }
   }
+
   return (
-    <div className="min-h-screen max-h-full">
+    <div className="min-h-screen max-h-full " id="betta">
       {loading ? (
-        <div className="h-screen bg-gray-100 dark:bg-slate-700">
+        <div className="h-screen bg-gray-100 dark:bg-slate-700 content">
           <div>
             <div>
               <Navbar fluid={true} rounded={true}>
@@ -275,7 +287,7 @@ function App() {
         <div
           className={`${
             produtoSearch?.length ? "h-full" : "h-screen"
-          } bg-gray-100 dark:bg-slate-700`}
+          } bg-gray-100 dark:bg-slate-700  content`}
         >
           <div className="h-full">
             {modalCard && card && (
@@ -336,10 +348,9 @@ function App() {
                                   name="pagamento"
                                   id="pagamento"
                                   className="rounded-md"
+                                  defaultValue={"Dinheiro"}
                                 >
-                                  <option value="Dinheiro" selected>
-                                    Dinheiro
-                                  </option>
+                                  <option value="Dinheiro">Dinheiro</option>
                                   <option value="Cartão">Cartão</option>
                                   <option value="Boleto">Boleto</option>
                                 </select>
@@ -350,7 +361,10 @@ function App() {
                       )}
                       {card.length >= 1 ? (
                         card?.map((item, index: number) => (
-                          <div className="flex items-center justify-between mt-3 p-2">
+                          <div
+                            className="flex items-center justify-between mt-3 p-2"
+                            key={index}
+                          >
                             <div className="flex items-center gap-4">
                               <div>
                                 <p className="text-xs text-gray-400">
@@ -462,6 +476,7 @@ function App() {
                       <Label>Quantidade:</Label>
                       <TextInput
                         type="number"
+                        id="qtd"
                         min={1}
                         max={produto?.estoque}
                         defaultValue={1}
@@ -503,13 +518,24 @@ function App() {
 
             <header className="fixed w-full top-0 z-10 ">
               <div>
-                <Navbar fluid={true} rounded={true}>
+                <Navbar fluid={true} rounded={true} id="hhhsgdbkaj">
                   <Navbar.Brand href="/">
                     <span className="self-center whitespace-nowrap text-xl font-semibold dark:text-white">
                       Comercial Angelim
                     </span>
                   </Navbar.Brand>
-                  <div className="flex md:order-2 gap-2 items-center">
+                  <div className="flex md:order-2 gap-3 items-center">
+                    {showSearch && (
+                      <div
+                        className="flex items-center gap-2   animate-in slide-in-from-top "
+                        id="searchDiv"
+                        onClick={() => {
+                          window.scrollTo(0, 0);
+                        }}
+                      >
+                        <AiOutlineSearch className="w-8 h-8 text-white  " />
+                      </div>
+                    )}
                     <label
                       htmlFor="default-toggle"
                       className="inline-flex relative items-center cursor-pointer"
@@ -547,19 +573,18 @@ function App() {
                 <input
                   onChange={(e) => search(e.target.value)}
                   type="search"
-                  id="default-search"
                   className="block p-4 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   placeholder="Pesquise Produtos"
                 />
               </div>
               <div
-                className={`relative grid  py-2 bg-gray-100 dark:bg-slate-700 grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3 px-6 my-2 ${
+                className={`relative huppu grid  py-2 bg-gray-100 dark:bg-slate-700 grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3 px-6 my-2 ${
                   modalCard && card ? "hidden" : ""
                 }`}
               >
                 {produtoSearch
                   ? produtoSearch.map((produto) => (
-                      <div key={produto.codigo}>
+                      <div key={produto.codigo} className="nav">
                         <Card imgAlt={produto.nome.toLowerCase()}>
                           <p className=" dark:text-white text-lg text-slate-800 font-semibold">
                             {produto.nome[0].toUpperCase() +
@@ -591,7 +616,7 @@ function App() {
                       </div>
                     ))
                   : produtos?.map((produto) => (
-                      <div key={produto.codigo}>
+                      <div key={produto.codigo} id="huppy">
                         <Card imgAlt={produto.nome.toLowerCase()}>
                           <p className=" dark:text-white text-lg text-slate-800 font-semibold">
                             {produto.nome[0].toUpperCase() +
@@ -630,7 +655,6 @@ function App() {
               </div>
             </div>
           </div>
-         
         </div>
       )}
       <FooterAPP />

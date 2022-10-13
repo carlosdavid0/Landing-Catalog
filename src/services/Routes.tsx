@@ -7,7 +7,7 @@ import Login from "../pages/dashboard/login";
 import VendaDetalhe from "../pages/VendaDetalhe";
 import Vendas from "../pages/dashboard/Vendas";
 import Nav from "../components/Global";
-import Dashboard from "../pages/dashboard";
+import Dashboard from "../pages/dashboard/Index";
 import Users from "../pages/dashboard/Users";
 
 export default function Routes() {

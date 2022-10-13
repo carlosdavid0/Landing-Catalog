@@ -8,8 +8,6 @@ import {
   ShoppingBagIcon,
   BookOpenIcon,
   UserGroupIcon,
-  InboxIcon,
-  CommandLineIcon,
 } from "@heroicons/react/24/solid";
 
 import { Avatar, Dropdown, Navbar, Sidebar } from "flowbite-react";
@@ -90,14 +88,6 @@ export default function Nav() {
               icon={ShoppingBagIcon}
             >
               Vendas
-            </Sidebar.Item>
-            <Sidebar.Item
-              onClick={() => navigateTo("/produtos")}
-              style={{ cursor: "pointer" }}
-              active={activeRoute("/produtos")}
-              icon={BookOpenIcon}
-            >
-              Produtos
             </Sidebar.Item>
 
             <Sidebar.Item
