@@ -91,6 +91,15 @@ export default function Nav() {
             </Sidebar.Item>
 
             <Sidebar.Item
+              onClick={() => navigateTo("/dashboard/produtos")}
+              style={{ cursor: "pointer" }}
+              active={activeRoute("/dashboard/produtos")}
+              icon={BookOpenIcon}
+            >
+              Produtos
+            </Sidebar.Item>
+
+            <Sidebar.Item
               onClick={() => navigateTo("/dashboard/users")}
               style={{ cursor: "pointer" }}
               active={activeRoute("/dashboard/users")}
@@ -98,6 +107,7 @@ export default function Nav() {
             >
               Usuários
             </Sidebar.Item>
+         
           </Sidebar.ItemGroup>
         </Sidebar.Items>
 
