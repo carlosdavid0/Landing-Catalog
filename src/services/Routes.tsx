@@ -9,6 +9,7 @@ import Vendas from "../pages/dashboard/Vendas";
 import Nav from "../components/Global";
 import Dashboard from "../pages/dashboard/Index";
 import Users from "../pages/dashboard/Users";
+import Produtos from "../pages/dashboard/produtos";
 
 export default function Routes() {
   return (
@@ -18,6 +19,7 @@ export default function Routes() {
       <Route path="/dashboard" element={<Nav />}>
         <Route index element={<Dashboard />} />
         <Route path="vendas" element={<Vendas />} />
+        <Route path="produtos" element={<Produtos />} />
         <Route path="users" element={<Users />} />
         <Route path="*" element={<Navigate to="/dashboard/login" />} />
       </Route>

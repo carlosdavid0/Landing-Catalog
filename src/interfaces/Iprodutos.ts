@@ -4,6 +4,7 @@ export interface produto {
     observacao: string;
     ipi: number;
     peso: number;
+    ativo: boolean | null;
     codigo_barra: string;
     qtd_embalagem: number;
     categoria: string;

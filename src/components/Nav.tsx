@@ -60,12 +60,15 @@ export default function Nav() {
   }
 
   useEffect(() => {
-    api.get('/user').then(response => {
-      setUser(response.data);
-    }).catch(error => {
-      console.log(error)
-    })
-  },[])
+    api
+      .get("/user")
+      .then((response) => {
+        setUser(response.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }, []);
 
   return (
     <div className="sticky top-0 h-screen">
@@ -107,7 +110,6 @@ export default function Nav() {
             >
               Usuários
             </Sidebar.Item>
-         
           </Sidebar.ItemGroup>
         </Sidebar.Items>
 

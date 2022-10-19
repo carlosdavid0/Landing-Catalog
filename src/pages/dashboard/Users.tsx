@@ -12,6 +12,9 @@ export default function Users() {
   const [modal, setModal] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  console.log('renderizou');
+  
+
   useEffect(() => {
     api.get("/users").then((response) => {
       setUsers(response.data);

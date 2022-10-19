@@ -49,7 +49,7 @@ function App() {
     setCount(count);
     setLoading(true);
     api
-      .get("/produtos")
+      .get("/produtos?ativos=true")
       .then((response) => {
         setProdutos(response.data);
         setLoading(false);
@@ -86,8 +86,6 @@ function App() {
     if (e.key === "Escape") {
       onClose();
     }
-
-    const max = e.target.getAttribute("max");
 
     if (
       e.key === "." ||
@@ -602,15 +600,11 @@ function App() {
                                   produto.embalagem.substring(1).toLowerCase()}
                               </span>
                             </span>
-                            {produto.estoque > 0 ? (
-                              <Button
-                                onClick={() => getProdutoToAdd(produto.codigo)}
-                              >
-                                Comprar
-                              </Button>
-                            ) : (
-                              <Button color={"failure"}>Esgotado</Button>
-                            )}
+                            <Button
+                              onClick={() => getProdutoToAdd(produto.codigo)}
+                            >
+                              Comprar
+                            </Button>
                           </div>
                         </Card>
                       </div>
@@ -634,20 +628,11 @@ function App() {
                                   produto.embalagem.substring(1).toLowerCase()}
                               </span>
                             </span>
-                            {produto.estoque > 0 ? (
-                              <Button
-                                onClick={() => getProdutoToAdd(produto.codigo)}
-                              >
-                                Comprar
-                              </Button>
-                            ) : (
-                              <Button
-                                color={"failure"}
-                                style={{ cursor: "not-allowed" }}
-                              >
-                                Esgotado
-                              </Button>
-                            )}
+                            <Button
+                              onClick={() => getProdutoToAdd(produto.codigo)}
+                            >
+                              Comprar
+                            </Button>
                           </div>
                         </Card>
                       </div>
