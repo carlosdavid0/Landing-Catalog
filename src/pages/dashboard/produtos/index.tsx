@@ -9,6 +9,8 @@ import api from "../../../services/api";
 export default function Produtos() {
   const [produto, setProdutos] = useState<produto[]>([]);
   const [loading, setloading] = useState(false);
+  const [loadingRequest, setloadingRequest] = useState(false);
+
 
   useEffect(() => {
     setloading(true);
@@ -25,12 +27,15 @@ export default function Produtos() {
   }, []);
 
   function changeStatus(id: number) {
+    setloadingRequest(true);
     api
-      .put(`/produto/status/${id}`,{
-        status: produto.find((i) => i.id === id)?.ativo === true? false: true
+      .put(`/produto/status/${id}`, {
+        status: produto.find((i) => i.id === id)?.ativo === true ? false : true
       })
       .then((response) => {
-        Notificacao({ message: "Status alterado com sucesso", type: "success" });
+        setloadingRequest(false);
+        const prodMod = produto.find((i) => i.id === id);
+        Notificacao({ message: ` ${prodMod?.nome} alterado com sucesso`, type: "success" });
         const newProdutos = produto.map((item) => {
           if (item.id === id) {
             item.ativo = !item.ativo;
@@ -41,9 +46,11 @@ export default function Produtos() {
         setProdutos(newProdutos);
       })
       .catch((err) => {
+        setloadingRequest(false);
         Notificacao({ message: "Erro ao alterar o status", type: "error" });
         setloading(false);
       });
+
   }
 
   return (
@@ -93,23 +100,24 @@ export default function Produtos() {
             label: "Status",
             return({ i }: any) {
               return (
-                <label
-                  htmlFor="default-toggle"
-                  className="inline-flex relative items-center cursor-pointer"
-                >
-                  <input
-                    defaultChecked={i.ativo}
-                    onChange={() => changeStatus(i.id)}
-                    type="checkbox"
-                    value=""
-                    id="default-toggle"
-                    className="sr-only peer"
-                  />
-                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
-                </label>
+                <div className="flex items-center justify-center">
+                  <Button
+                    disabled={loadingRequest}
+                    onClick={() => changeStatus(i.id)}
+                    color={i.ativo ? "success" : "failure"}
+                  >
+
+                    {i.ativo ? "Ativo" : "Inativo"}
+
+                    {loadingRequest && (
+                      <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white ml-3"></div>
+                    )}
+                  </Button>
+                </div>
               );
-            },
-          },
+
+            }
+          }
         ]}
         data={produto}
       />
